@@ -6,18 +6,24 @@ from pathlib import Path
 from fastapi import FastAPI, File, UploadFile
 from DeepImageSearch import Load_Data, Search_Setup
 from contextlib import asynccontextmanager
+import builtins
+
+import builtins
+builtins.input = lambda *args, **kwargs: "yes"
 
 from src.search_by_image.image_utils import fetch_image_urls, download_images
+
+# Set working directory to current file's directory
 os.chdir(Path(__file__).resolve().parent)
 
-
+# Fix for some parallel processing issues with certain libraries
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-BASE_DIR = Path(__file__).resolve().parent  # src/search-by-image
-
+BASE_DIR = Path(__file__).resolve().parent
 IMAGE_DIR = BASE_DIR / "data"
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 
+# Create necessary folders
 Path(IMAGE_DIR).mkdir(parents=True, exist_ok=True)
 Path(UPLOAD_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -86,6 +92,4 @@ async def search_by_image(file: UploadFile = File(...), top_n: int = 5):
         "query_image": file_location,
         "similar_meal_ids": meal_ids
     }
-    
-    
-# uvicorn src.search-by-image.search:app --reload     
+# uvicorn src.search-by-image.search:app --reload
