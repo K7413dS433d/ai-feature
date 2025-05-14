@@ -7,7 +7,7 @@ main_app = FastAPI()
 # main_app.mount("/search", search_app)
 
 # Root-level route for testing
-print("Hello There")
+print("Hello There from khaled")
 @main_app.get("/")
 def root():
     return {"message": "Main App is running"}
