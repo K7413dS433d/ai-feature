@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.search_by_image.search import app as search_app, lifespan
+# from src.search_by_image.search import app as search_app, lifespan
 
 main_app = FastAPI()
 

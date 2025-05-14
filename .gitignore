@@ -20,3 +20,5 @@ env/
 src/search_by_image/data
 src/search_by_image/metadata-files
 src/search_by_image/uploads
+
+.venv/
