@@ -19,7 +19,8 @@ def get_image_filename(meal_id):
     return os.path.join(IMAGE_DIR, f"meal_{meal_id}.jpg")
 
 async def fetch_image_urls():
-    query = {"updatedAt": {"$gt": datetime.datetime.utcnow() - datetime.timedelta(days=365)}}
+    # query = {"updatedAt": {"$gt": datetime.datetime.utcnow() - datetime.timedelta(days=365)}}
+    query ={}
     projection = {"_id": 1, "images": 1}
     urls = []
 
@@ -28,6 +29,7 @@ async def fetch_image_urls():
             url = img.get("secure_url")
             if url:
                 urls.append((str(doc["_id"]), url))
+    logger.info(f"Fetched {len(urls)} image URLs")
     return urls
 
 async def download_image(session, url, filename):

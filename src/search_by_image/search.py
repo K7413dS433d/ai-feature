@@ -5,6 +5,7 @@ import asyncio
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile
 from DeepImageSearch import Load_Data, Search_Setup
+from fastapi import HTTPException
 from contextlib import asynccontextmanager
 import builtins
 
@@ -52,6 +53,11 @@ async def lifespan(app: FastAPI):
     image_list = Load_Data().from_folder([IMAGE_DIR])
     logger.info(f"Total images indexed: {len(image_list)}")
 
+    if not image_list:
+        logger.warning("No images found to index. Skipping search engine initialization.")
+        yield
+        return
+
     search_engine = Search_Setup(image_list=image_list)
     search_engine.run_index()
 
@@ -63,7 +69,6 @@ async def lifespan(app: FastAPI):
     
     # Shutdown tasks (if needed)
     logger.info("Shutting down the application")
-
 # Create the FastAPI app with the lifespan context manager
 app = FastAPI(lifespan=lifespan)
 
@@ -78,7 +83,11 @@ async def search_by_image(file: UploadFile = File(...), top_n: int = 5):
         shutil.copyfileobj(file.file, buffer)
 
     if search_engine is None:
-        raise Exception("Search engine not initialized")  
+        logger.warning("Search engine not initialized. No data available for search.")
+        raise HTTPException(
+            status_code=503,
+            detail="Search engine not initialized. No data available for search."
+        )
 
     search_results = search_engine.get_similar_images(image_path=file_location, number_of_images=top_n)
     meal_ids = []
