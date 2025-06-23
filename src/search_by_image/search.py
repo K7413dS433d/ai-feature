@@ -9,7 +9,6 @@ from fastapi import HTTPException
 from contextlib import asynccontextmanager
 import builtins
 
-import builtins
 builtins.input = lambda *args, **kwargs: "yes"
 
 from src.search_by_image.image_utils import fetch_image_urls, download_images
@@ -39,36 +38,44 @@ async def update_index_with_new_images():
     image_list = Load_Data().from_folder([IMAGE_DIR])  
     search_engine.run_index()  
 
+async def schedule_index_update(interval_seconds: int = 3600):
+    while True:
+        try:
+            logger.info("Starting scheduled image update...")
+            await update_index_with_new_images()
+            logger.info("Scheduled update completed.")
+        except Exception as e:
+            logger.error(f"Error during scheduled update: {e}")
+        await asyncio.sleep(interval_seconds)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global search_engine
-    if os.path.exists('.deep_image_search'):
-        shutil.rmtree('.deep_image_search')
 
-    # Fetch and download images during startup
-    image_data = await fetch_image_urls()
-    await download_images(image_data)
-    
-    # Load and index the images
+    if any(Path(IMAGE_DIR).iterdir()):
+        logger.info("Found local images. Using them for indexing.")
+    else:
+        logger.info("No local images found. Downloading from DB...")
+        image_data = await fetch_image_urls()
+        await download_images(image_data)
+
     image_list = Load_Data().from_folder([IMAGE_DIR])
     logger.info(f"Total images indexed: {len(image_list)}")
 
     if not image_list:
-        logger.warning("No images found to index. Skipping search engine initialization.")
+        logger.warning("No images to index.")
         yield
         return
 
     search_engine = Search_Setup(image_list=image_list)
     search_engine.run_index()
+    logger.info("Indexing completed.")
 
-    # Start background task to update index with new images
-    asyncio.create_task(update_index_with_new_images())
+    asyncio.create_task(schedule_index_update())
 
-    # Yield to indicate that the startup process is complete
     yield
-    
-    # Shutdown tasks (if needed)
-    logger.info("Shutting down the application")
+    logger.info("Shutting down.")
+
 # Create the FastAPI app with the lifespan context manager
 app = FastAPI(lifespan=lifespan)
 
