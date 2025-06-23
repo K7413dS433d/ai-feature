@@ -108,4 +108,5 @@ async def search_by_image(file: UploadFile = File(...), top_n: int = 5):
         "query_image": file_location,
         "similar_meal_ids": meal_ids
     }
+
 # uvicorn src.search_by_image.search:app --reload
