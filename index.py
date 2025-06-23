@@ -18,4 +18,4 @@ async def start_inner_app():
 
 
 #uvicorn index:main_app --reload
-##uvicorn index:main_app --host 0.0.0.0 --port 8000
+## uvicorn index:main_app --host 0.0.0.0 --port 8000
