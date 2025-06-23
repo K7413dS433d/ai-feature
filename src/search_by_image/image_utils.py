@@ -19,8 +19,7 @@ def get_image_filename(meal_id):
     return os.path.join(IMAGE_DIR, f"meal_{meal_id}.jpg")
 
 async def fetch_image_urls():
-    # query = {"updatedAt": {"$gt": datetime.datetime.utcnow() - datetime.timedelta(days=365)}}
-    query ={}
+    query = {"updatedAt": {"$gt": datetime.datetime.utcnow() - datetime.timedelta(days=365)}}
     projection = {"_id": 1, "images": 1}
     urls = []
 
