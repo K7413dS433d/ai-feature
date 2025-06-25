@@ -11,5 +11,5 @@ main_app.mount("/search", search_app)
 def root():
     return {"message": "Main App is running"}
 
-#  uvicorn index:main_app --reload
-#  uvicorn index:main_app --host 0.0.0.0 --port 8000
+#  uvicorn main:main_app --reload
+#  uvicorn main:main_app --host 0.0.0.0 --port 8000
